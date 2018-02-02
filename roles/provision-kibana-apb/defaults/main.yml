@@ -1,0 +1,5 @@
+---
+kibana_version: 6.1.2
+APPLICATION_NAME: kibana
+KIBANA_MEMORY_LIMIT: 256Mi
+KIBANA_PVC_SIZE: 200Mi

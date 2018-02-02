@@ -1,0 +1,77 @@
+---
+- name: Process ImageStream from template
+  template:
+    src: kibana-is.yml.j2
+    dest: "/tmp/kibana-is.yml"
+  register: is
+
+- name: Create ImageStream
+  openshift_v1_image_stream:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace }}"
+    state: present
+    src: "{{ is.dest | default(is.path) }}"
+
+- name: Create Service
+  k8s_v1_service:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace }}"
+    state: present
+    selector:
+      app: "{{ APPLICATION_NAME }}"
+    ports:
+      - name: web
+        port: 5601
+        target_port: 5601
+    labels:
+      app: "{{ APPLICATION_NAME }}"
+
+- name: Create Route
+  openshift_v1_route:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace }}"
+    state: present
+    spec_to_kind: Service
+    spec_to_name: "{{ APPLICATION_NAME }}"
+    port_target_port: web
+    labels:
+      app: "{{ APPLICATION_NAME }}"
+
+- name: Process ConfigMap from template
+  template:
+    src: kibana-configmap.yml.j2
+    dest: "/tmp/kibana-configmap.yml"
+  register: cm
+
+- name: Create ConfigMap
+  k8s_v1_config_map:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace}}"
+    state: present
+    src: "{{ cm.dest | default(cm.path) }}"
+
+- name: Create PersistentVolumeClaim
+  k8s_v1_persistent_volume_claim:
+    name: "{{ APPLICATION_NAME }}-claim"
+    namespace: "{{ namespace}}"
+    labels:
+      app: "{{ APPLICATION_NAME }}"
+    state: present
+    access_modes:
+    - ReadWriteOnce
+    resources_requests:
+      storage: "{{ KIBANA_PVC_SIZE }}"
+  when: _apb_plan_id == 'persistent'
+
+- name: Process DeploymentConfig from template
+  template:
+    src: kibana-dc.yml.j2
+    dest: "/tmp/kibana-dc.yml"
+  register: dc
+
+- name: Create DeploymentConfig
+  openshift_v1_deployment_config:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace}}"
+    state: present
+    src: "{{ dc.dest | default(dc.path) }}"
