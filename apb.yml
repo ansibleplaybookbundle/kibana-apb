@@ -1,0 +1,59 @@
+---
+version: 1.0
+name: kibana-apb
+description: APB to deploy Kibana OSS 6.1.2
+bindable: False
+async: optional
+metadata:
+  displayName: "Kibana (APB)"
+  dependencies: ['docker.elastic.co/kibana/kibana-oss:6.1.2']
+  imageUrl: https://www.elastic.co/assets/blt282ae2420e32fc38/icon-kibana-bb.svg
+  documentationUrl: https://www.elastic.co/guide/en/kibana/6.1/index.html
+  providerDisplayName: "Red Hat, Inc."
+tags:
+  - kibana
+  - elasticsearch
+plans:
+  - name: ephemeral
+    description: This plan deploys Kibana without persistent cache
+    free: True
+    metadata:
+      displayName: Ephemeral installation
+    default: True
+    parameters:
+    - name: APPLICATION_NAME
+      type: string
+      default: kibana
+      description: Kibana application
+      title: Application name
+      required: true
+    - name: KIBANA_MEMORY_LIMIT
+      type: string
+      default: 256Mi
+      description: Memory limit for Kibana container
+      title: Memory limit
+      required: true
+  - name: persistent
+    description: This plan deploys Kibana with persistent cache
+    free: True
+    metadata:
+      displayName: Persistent installation
+    parameters:
+    - name: APPLICATION_NAME
+      type: string
+      default: kibana
+      description: Kibana application
+      title: Application name
+      required: true
+    - name: KIBANA_MEMORY_LIMIT
+      type: string
+      default: 256Mi
+      description: Memory limit for Kibana container
+      title: Memory limit
+      required: true
+    - name: KIBANA_PVC_SIZE
+      type: string
+      default: 200Mi
+      description: Kibana storage size
+      title: Kibana storage
+      required: true

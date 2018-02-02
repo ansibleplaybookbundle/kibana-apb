@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ APPLICATION_NAME }}
+  name: {{ APPLICATION_NAME }}
+data:
+  kibana.yml: |+
+    server.name: kibana
+    server.host: "0"
+    elasticsearch.url: http://localhost:9200
