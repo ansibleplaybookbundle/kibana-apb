@@ -12,7 +12,24 @@
     state: present
     src: "{{ is.dest | default(is.path) }}"
 
-- name: Create Service
+- name: Create Secure Service
+  k8s_v1_service:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace }}"
+    state: present
+    annotations:
+      service.alpha.openshift.io/serving-cert-secret-name: "{{ APPLICATION_NAME }}-proxy-tls"
+    selector:
+      app: "{{ APPLICATION_NAME }}"
+    ports:
+      - name: proxy
+        port: 8443
+        target_port: 8443
+    labels:
+      app: "{{ APPLICATION_NAME }}"
+  when: SECURE
+
+- name: Create Insecure Service
   k8s_v1_service:
     name: "{{ APPLICATION_NAME }}"
     namespace: "{{ namespace }}"
@@ -25,6 +42,7 @@
         target_port: 5601
     labels:
       app: "{{ APPLICATION_NAME }}"
+  when: not SECURE
 
 - name: Create Route
   openshift_v1_route:
@@ -33,7 +51,7 @@
     state: present
     spec_to_kind: Service
     spec_to_name: "{{ APPLICATION_NAME }}"
-    port_target_port: web
+    spec_tls_termination: "{{ 'Reencrypt' if SECURE else 'Edge'}}"
     labels:
       app: "{{ APPLICATION_NAME }}"
 
@@ -47,8 +65,11 @@
   k8s_v1_config_map:
     name: "{{ APPLICATION_NAME }}"
     namespace: "{{ namespace}}"
+    labels:
+      app: "{{ APPLICATION_NAME }}"
     state: present
-    src: "{{ cm.dest | default(cm.path) }}"
+    data:
+      kibana.yml: "{{ lookup('template', 'kibana.yml.j2') }}"
 
 - name: Create PersistentVolumeClaim
   k8s_v1_persistent_volume_claim:
@@ -62,6 +83,21 @@
     resources_requests:
       storage: "{{ KIBANA_PVC_SIZE }}"
   when: _apb_plan_id == 'persistent'
+
+- name: Process ServiceAccount from template
+  template:
+    src: kibana-sa.yml.j2
+    dest: "/tmp/kibana-sa.yml"
+  register: sa
+  when: SECURE
+
+- name: Create ServiceAccount
+  k8s_v1_service_account:
+    name: "{{ APPLICATION_NAME }}"
+    namespace: "{{ namespace}}"
+    state: present
+    src: "{{ sa.dest | default(sa.path) }}"
+  when: SECURE
 
 - name: Process DeploymentConfig from template
   template:

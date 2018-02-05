@@ -33,6 +33,11 @@ plans:
       description: Memory limit for Kibana container
       title: Memory limit
       required: true
+    - name: SECURE
+      type: boolean
+      default: true
+      description: Allow access only to OpenShift users having access to the service
+      title: Secured access
   - name: persistent
     description: This plan deploys Kibana with persistent cache
     free: True
@@ -57,3 +62,8 @@ plans:
       description: Kibana storage size
       title: Kibana storage
       required: true
+    - name: SECURE
+      type: boolean
+      default: true
+      description: Allow access only to OpenShift users having access to the service
+      title: Secured access

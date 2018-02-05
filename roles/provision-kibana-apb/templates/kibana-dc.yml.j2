@@ -15,6 +15,26 @@ spec:
         app: {{ APPLICATION_NAME }}
     spec:
       containers:
+{% if SECURE %}
+      - name: oauth-proxy
+        image: openshift/oauth-proxy:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8443
+          name: public
+        args:
+        - --https-address=:8443
+        - --provider=openshift
+        - --openshift-service-account={{ APPLICATION_NAME }}-proxy
+        - --upstream=http://localhost:5601
+        - --tls-cert=/etc/tls/private/tls.crt
+        - --tls-key=/etc/tls/private/tls.key
+        - --cookie-secret={{ lookup('password', '/tmp/secret chars=ascii_letters,digits') }}
+        - --openshift-sar={"namespace":"{{ namespace }}","resource":"services","name":"{{ APPLICATION_NAME }}","verb":"get"}
+        volumeMounts:
+        - mountPath: /etc/tls/private
+          name: proxy-tls
+{% endif %}
       - image: ' '
         imagePullPolicy: IfNotPresent
         name: {{ APPLICATION_NAME }}
@@ -23,9 +43,11 @@ spec:
             memory: {{ KIBANA_MEMORY_LIMIT }}
           requests:
             memory: {{ KIBANA_MEMORY_LIMIT }}
+{% if not SECURE %}
         ports:
         - containerPort: 5601
           protocol: TCP
+{% endif %}
         resources: {}
         volumeMounts:
         - mountPath: /usr/share/kibana/data
@@ -40,6 +62,9 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
+{% if SECURE %}
+      serviceAccountName: {{ APPLICATION_NAME }}-proxy
+{% endif %}
       terminationGracePeriodSeconds: 30
       volumes:
         - name: kibana-data
@@ -52,6 +77,11 @@ spec:
         - configMap:
             name: {{ APPLICATION_NAME }}
           name: kibana-config
+{% if SECURE %}
+        - name: proxy-tls
+          secret:
+            secretName: {{ APPLICATION_NAME }}-proxy-tls
+{% endif %}
   triggers:
   - type: ConfigChange
   - imageChangeParams:
