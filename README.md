@@ -11,6 +11,7 @@ Two plans have been defined:
 * **APPLICATION_NAME**: Name of the Kibana objects deployed. Default `kibana`
 * **KIBANA_MEMORY_LIMIT**: Memory limits to be set to the `kibana` container. The half will be assigned to the Elasticsearch heap. Default `256Mi`
 * **KIBANA_PVC_SIZE**: Size of each Persistent Volume Claim that will be defined. Default `200Mi` (Only for the persistent plan)
+* **SECURE**: Whether to secure or not Kibana using [OpenShift OAuth Proxy](https://github.com/openshift/oauth-proxy) that will allow only authenticated users with access to the Kibana service to access the application.
 
 ## Elasticsearch dependency
 
