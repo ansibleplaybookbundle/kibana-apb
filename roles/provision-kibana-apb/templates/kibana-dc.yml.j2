@@ -2,27 +2,27 @@ apiVersion: v1
 kind: DeploymentConfig
 metadata:
   labels:
-    app: {{ APPLICATION_NAME }}
-  name: {{ APPLICATION_NAME }}
+    app: {{ application_name }}
+  name: {{ application_name }}
   namespace: {{ namespace }}
 spec:
   replicas: 1
   selector:
-    app: {{ APPLICATION_NAME }}
+    app: {{ application_name }}
   template:
     metadata:
       labels:
-        app: {{ APPLICATION_NAME }}
+        app: {{ application_name }}
     spec:
       containers:
       - image: ' '
         imagePullPolicy: IfNotPresent
-        name: {{ APPLICATION_NAME }}
+        name: {{ application_name }}
         resources:
           limits:
-            memory: {{ KIBANA_MEMORY_LIMIT }}
+            memory: {{ kibana_memory_limit }}
           requests:
-            memory: {{ KIBANA_MEMORY_LIMIT }}
+            memory: {{ kibana_memory_limit }}
         ports:
         - containerPort: 5601
           protocol: TCP
@@ -47,10 +47,10 @@ spec:
           emptyDir: {}
 {% else %}
           persistentVolumeClaim:
-            claimName: {{ APPLICATION_NAME }}-claim
+            claimName: {{ application_name }}-claim
 {% endif %}
         - configMap:
-            name: {{ APPLICATION_NAME }}
+            name: {{ application_name }}
           name: kibana-config
   triggers:
   - type: ConfigChange
@@ -60,6 +60,6 @@ spec:
       - kibana
       from:
         kind: ImageStreamTag
-        name: {{ APPLICATION_NAME }}:{{ kibana_version }}
+        name: {{ application_name }}:{{ kibana_version }}
         namespace: {{ namespace }}
     type: ImageChange
