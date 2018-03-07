@@ -1,5 +1,9 @@
 # Kibana APB
 
+[![Build Status](https://travis-ci.org/ansibleplaybookbundle/kibana-apb.svg?branch=master)](https://travis-ci.org/ansibleplaybookbundle/kibana-apb) [![License](https://img.shields.io/:license-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
+![elasticsearch image](./docs/imgs/kibana_logo.png)
+
 This [Ansible Playbook Bundle](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle) deploys Kibana
 
 Two plans have been defined:
@@ -12,7 +16,7 @@ Two plans have been defined:
 * **kibana_memory_limit**: Memory limits to be set to the `kibana` container. The half will be assigned to the Elasticsearch heap. Default `256Mi`
 * **kibana_pvc_size**: Size of each Persistent Volume Claim that will be defined. Default `200Mi` (Only for the persistent plan)
 * **kibana_version**: Dropdown to select the Elasticsearch version to deploy
-* **secure**: Whether to secure or not Kibana using [OpenShift OAuth Proxy](https://github.com/openshift/oauth-proxy) that will allow only authenticated users with access to the Kibana service to access the application.
+* **kibana_secure**: Whether to secure or not Kibana using [OpenShift OAuth Proxy](https://github.com/openshift/oauth-proxy) that will allow only authenticated users with access to the Kibana service to access the application.
 
 ## Elasticsearch dependency
 

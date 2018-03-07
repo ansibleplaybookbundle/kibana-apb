@@ -1,0 +1,30 @@
+---
+- name: "Retrieve Service"
+  k8s_v1_service:
+    name: '{{ application_name }}'
+    namespace: '{{ namespace }}'
+  register: service_raw
+
+- name: Fetch secure endpoint from service
+  set_fact:
+    test_kibana_secure_uri: 'https://{{ service_raw.service.spec.cluster_ip }}:{{ service_raw.service.spec.ports[0].port}}'
+
+- name: Check Kibana oauth proxy is preventing anonymous accesses
+  uri:
+    url: '{{ test_kibana_secure_uri }}/oauth/healthz'
+    method: GET
+    status_code: 200
+    return_content: yes
+    validate_certs: no
+  register: kibana_proxy
+  ignore_errors: "{{ travis is not defined }}"
+  retries: 10
+  delay: 5
+  until:
+    - kibana_proxy.status == 200
+
+- asb_save_test_result:
+    fail: true
+    msg: "Kibana is not secured"
+  when:
+    - travis is not defined

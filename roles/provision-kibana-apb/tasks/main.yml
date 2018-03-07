@@ -1,4 +1,8 @@
 ---
+- name: Normalize secure value
+  set_fact:
+    secure: "{{ kibana_secure | bool }}"
+
 - name: Process ImageStream from template
   template:
     src: kibana-is.yml.j2

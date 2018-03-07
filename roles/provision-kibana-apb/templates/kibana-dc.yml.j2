@@ -34,6 +34,16 @@ spec:
         volumeMounts:
         - mountPath: /etc/tls/private
           name: proxy-tls
+        livenessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: public
+            scheme: HTTPS
+        readinessProbe:
+          httpGet:
+            path: /oauth/healthz
+            port: public
+            scheme: HTTPS
 {% endif %}
       - image: ' '
         imagePullPolicy: IfNotPresent
@@ -56,6 +66,18 @@ spec:
         - mountPath: /usr/share/kibana/optimize
           name: kibana-data
           subPath: optimize
+        livenessProbe:
+          initialDelaySeconds: 300
+          httpGet:
+            path: /
+            port: 5601
+        readinessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          failureThreshold: 30
+          httpGet:
+            path: /
+            port: 5601
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
