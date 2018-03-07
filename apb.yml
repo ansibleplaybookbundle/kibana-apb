@@ -21,61 +21,61 @@ plans:
       displayName: Ephemeral installation
     default: True
     parameters:
-    - name: application_name
-      type: string
-      default: kibana
-      description: Kibana application
-      title: Application name
-      required: true
-    - name: kibana_memory_limit
-      type: string
-      default: 256Mi
-      description: Memory limit for Kibana container
-      title: Memory limit
-      required: true
-    - name: kibana_version
-      title: Version
-      required: true
-      default: 6.2.1
-      type: enum
-      enum: ["6.2.1", "6.1.2", "5.5.2"]
-    - name: secure
-      type: boolean
-      default: true
-      description: Allow access only to OpenShift users having access to the service
-      title: Secured access
+      - name: application_name
+        type: string
+        default: kibana
+        description: Kibana application
+        title: Application name
+        required: true
+      - name: kibana_memory_limit
+        type: string
+        default: 256Mi
+        description: Memory limit for Kibana container
+        title: Memory limit
+        required: true
+      - name: kibana_version
+        title: Version
+        required: true
+        default: 6.2.1
+        type: enum
+        enum: ["6.2.1", "6.1.2", "5.5.2"]
+      - name: kibana_secure
+        type: boolean
+        default: true
+        description: Allow access only to OpenShift users having access to the service
+        title: Secured access
   - name: persistent
     description: This plan deploys Kibana with persistent cache
     free: True
     metadata:
       displayName: Persistent installation
     parameters:
-    - name: application_name
-      type: string
-      default: kibana
-      description: Kibana application
-      title: Application name
-      required: true
-    - name: kibana_memory_limit
-      type: string
-      default: 256Mi
-      description: Memory limit for Kibana container
-      title: Memory limit
-      required: true
-    - name: kibana_pvc_size
-      type: string
-      default: 200Mi
-      description: Kibana storage size
-      title: Kibana storage
-      required: true
-    - name: kibana_version
-      title: Version
-      required: true
-      default: 6.2.1
-      type: enum
-      enum: ["6.2.1", "6.1.2", "5.5.2"]
-    - name: secure
-      type: boolean
-      default: true
-      description: Allow access only to OpenShift users having access to the service
-      title: Secured access
+      - name: application_name
+        type: string
+        default: kibana
+        description: Kibana application
+        title: Application name
+        required: true
+      - name: kibana_memory_limit
+        type: string
+        default: 256Mi
+        description: Memory limit for Kibana container
+        title: Memory limit
+        required: true
+      - name: kibana_pvc_size
+        type: string
+        default: 200Mi
+        description: Kibana storage size
+        title: Kibana storage
+        required: true
+      - name: kibana_version
+        title: Version
+        required: true
+        default: 6.2.1
+        type: enum
+        enum: ["6.2.1", "6.1.2", "5.5.2"]
+      - name: kibana_secure
+        type: boolean
+        default: true
+        description: Allow access only to OpenShift users having access to the service
+        title: Secured access

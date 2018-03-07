@@ -1,0 +1,24 @@
+---
+- name: Fetch endpoint from service
+  set_fact:
+    test_kibana_uri: 'http://{{ service_raw.service.spec.cluster_ip }}:{{ service_raw.service.spec.ports[0].port}}'
+
+- name: Check Kibana is listening on the expected port
+  uri:
+    url: '{{ test_kibana_uri }}'
+    method: GET
+    status_code: 200
+    return_content: yes
+  register: kibana_req
+  ignore_errors: "{{ travis is not defined }}"
+  retries: 10
+  delay: 5
+  until:
+    - kibana_req.status == 200
+
+- asb_save_test_result:
+    fail: true
+    msg: "Kibana is not avaiable"
+  when:
+    - kibana_req.status == 200
+    - travis is not defined

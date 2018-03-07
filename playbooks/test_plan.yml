@@ -1,0 +1,26 @@
+---
+- name: "[TESTS][{{ plan_id | upper }}] Load default variables for testing"
+  include_vars: '{{ item }}'
+  with_items:
+    - test_defaults.yml
+    - test_{{ plan_id }}_defaults.yml
+
+- name: "[TESTS][{{ plan_id | upper }}] Create project for namespace"
+  openshift_v1_project:
+    name: '{{ namespace }}'
+
+- name: "[TESTS][{{ plan_id | upper }}] Run the provision role."
+  include_role:
+    name: provision-kibana-apb
+
+- name: "[TESTS][{{ plan_id | upper }}] Run the test role."
+  include_role:
+    name: test-provision-apb
+
+- name: "[TESTS][{{ plan_id | upper }}] Run the deprovision role."
+  include_role:
+    name: deprovision-kibana-apb
+
+- name: "[TESTS][{{ plan_id | upper }}] Run the deprovision test role."
+  include_role:
+    name: test-deprovision-apb

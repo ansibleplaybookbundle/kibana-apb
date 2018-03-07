@@ -1,0 +1,5 @@
+---
+es_memory_limit: 512Mi
+kibana_memory_limit: 256Mi
+kibana_version: 6.2.1
+kibana_secure: false
