@@ -7,81 +7,65 @@
 
 - name: Create ImageStream
   openshift_v1_image_stream:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     state: present
     src: "{{ is.dest | default(is.path) }}"
 
 - name: Create Secure Service
   k8s_v1_service:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     state: present
     annotations:
-      service.alpha.openshift.io/serving-cert-secret-name: "{{ APPLICATION_NAME }}-proxy-tls"
+      service.alpha.openshift.io/serving-cert-secret-name: "{{ application_name }}-proxy-tls"
     selector:
-      app: "{{ APPLICATION_NAME }}"
+      app: "{{ application_name }}"
     ports:
       - name: proxy
         port: 8443
         target_port: 8443
     labels:
-      app: "{{ APPLICATION_NAME }}"
-  when: SECURE
+      app: "{{ application_name }}"
+  when: secure
 
 - name: Create Insecure Service
   k8s_v1_service:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     state: present
     selector:
-      app: "{{ APPLICATION_NAME }}"
+      app: "{{ application_name }}"
     ports:
       - name: web
         port: 5601
         target_port: 5601
     labels:
-      app: "{{ APPLICATION_NAME }}"
-  when: not SECURE
+      app: "{{ application_name }}"
+  when: not secure
 
 - name: Create Route
   openshift_v1_route:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     state: present
     spec_to_kind: Service
-    spec_to_name: "{{ APPLICATION_NAME }}"
-    spec_tls_termination: "{{ 'Reencrypt' if SECURE else 'Edge'}}"
+    spec_to_name: "{{ application_name }}"
+    spec_tls_termination: "{{ 'Reencrypt' if secure else 'Edge'}}"
     labels:
-      app: "{{ APPLICATION_NAME }}"
-
-- name: Process ConfigMap from template
-  template:
-    src: kibana-configmap.yml.j2
-    dest: "/tmp/kibana-configmap.yml"
-  register: cm
-
-- name: Create ConfigMap
-  k8s_v1_config_map:
-    name: "{{ APPLICATION_NAME }}"
-    namespace: "{{ namespace}}"
-    labels:
-      app: "{{ APPLICATION_NAME }}"
-    state: present
-    data:
-      kibana.yml: "{{ lookup('template', 'kibana.yml.j2') }}"
+      app: "{{ application_name }}"
 
 - name: Create PersistentVolumeClaim
   k8s_v1_persistent_volume_claim:
-    name: "{{ APPLICATION_NAME }}-claim"
+    name: "{{ application_name }}-claim"
     namespace: "{{ namespace}}"
     labels:
-      app: "{{ APPLICATION_NAME }}"
+      app: "{{ application_name }}"
     state: present
     access_modes:
     - ReadWriteOnce
     resources_requests:
-      storage: "{{ KIBANA_PVC_SIZE }}"
+      storage: "{{ kibana_pvc_size }}"
   when: _apb_plan_id == 'persistent'
 
 - name: Process ServiceAccount from template
@@ -89,15 +73,15 @@
     src: kibana-sa.yml.j2
     dest: "/tmp/kibana-sa.yml"
   register: sa
-  when: SECURE
+  when: secure
 
 - name: Create ServiceAccount
   k8s_v1_service_account:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace}}"
     state: present
     src: "{{ sa.dest | default(sa.path) }}"
-  when: SECURE
+  when: secure
 
 - name: Process DeploymentConfig from template
   template:
@@ -107,7 +91,7 @@
 
 - name: Create DeploymentConfig
   openshift_v1_deployment_config:
-    name: "{{ APPLICATION_NAME }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace}}"
     state: present
     src: "{{ dc.dest | default(dc.path) }}"
