@@ -2,20 +2,20 @@ apiVersion: v1
 kind: DeploymentConfig
 metadata:
   labels:
-    app: {{ APPLICATION_NAME }}
-  name: {{ APPLICATION_NAME }}
+    app: {{ application_name }}
+  name: {{ application_name }}
   namespace: {{ namespace }}
 spec:
   replicas: 1
   selector:
-    app: {{ APPLICATION_NAME }}
+    app: {{ application_name }}
   template:
     metadata:
       labels:
-        app: {{ APPLICATION_NAME }}
+        app: {{ application_name }}
     spec:
       containers:
-{% if SECURE %}
+{% if secure %}
       - name: oauth-proxy
         image: openshift/oauth-proxy:v1.0.0
         imagePullPolicy: IfNotPresent
@@ -25,25 +25,25 @@ spec:
         args:
         - --https-address=:8443
         - --provider=openshift
-        - --openshift-service-account={{ APPLICATION_NAME }}-proxy
+        - --openshift-service-account={{ application_name }}-proxy
         - --upstream=http://localhost:5601
         - --tls-cert=/etc/tls/private/tls.crt
         - --tls-key=/etc/tls/private/tls.key
         - --cookie-secret={{ lookup('password', '/tmp/secret chars=ascii_letters,digits') }}
-        - --openshift-sar={"namespace":"{{ namespace }}","resource":"services","name":"{{ APPLICATION_NAME }}","verb":"get"}
+        - --openshift-sar={"namespace":"{{ namespace }}","resource":"services","name":"{{ application_name }}","verb":"get"}
         volumeMounts:
         - mountPath: /etc/tls/private
           name: proxy-tls
 {% endif %}
       - image: ' '
         imagePullPolicy: IfNotPresent
-        name: {{ APPLICATION_NAME }}
+        name: {{ application_name }}
         resources:
           limits:
-            memory: {{ KIBANA_MEMORY_LIMIT }}
+            memory: {{ kibana_memory_limit }}
           requests:
-            memory: {{ KIBANA_MEMORY_LIMIT }}
-{% if not SECURE %}
+            memory: {{ kibana_memory_limit }}
+{% if not secure %}
         ports:
         - containerPort: 5601
           protocol: TCP
@@ -56,14 +56,12 @@ spec:
         - mountPath: /usr/share/kibana/optimize
           name: kibana-data
           subPath: optimize
-        - mountPath: /usr/share/kibana/config
-          name: kibana-config
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-{% if SECURE %}
-      serviceAccountName: {{ APPLICATION_NAME }}-proxy
+{% if secure %}
+      serviceAccountName: {{ application_name }}-proxy
 {% endif %}
       terminationGracePeriodSeconds: 30
       volumes:
@@ -72,15 +70,12 @@ spec:
           emptyDir: {}
 {% else %}
           persistentVolumeClaim:
-            claimName: {{ APPLICATION_NAME }}-claim
+            claimName: {{ application_name }}-claim
 {% endif %}
-        - configMap:
-            name: {{ APPLICATION_NAME }}
-          name: kibana-config
-{% if SECURE %}
+{% if secure %}
         - name: proxy-tls
           secret:
-            secretName: {{ APPLICATION_NAME }}-proxy-tls
+            secretName: {{ application_name }}-proxy-tls
 {% endif %}
   triggers:
   - type: ConfigChange
@@ -90,6 +85,6 @@ spec:
       - kibana
       from:
         kind: ImageStreamTag
-        name: {{ APPLICATION_NAME }}:{{ kibana_version }}
+        name: {{ application_name }}:{{ kibana_version }}
         namespace: {{ namespace }}
     type: ImageChange

@@ -1,6 +1,6 @@
 # Kibana APB
 
-This [Ansible Playbook Bundle](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle) deploys Kibana 6.1.2
+This [Ansible Playbook Bundle](https://github.com/ansibleplaybookbundle/ansible-playbook-bundle) deploys Kibana
 
 Two plans have been defined:
 * **Ephemeral** where there won't be any persistence and the Kibana cached data and browser optimization data will be lost upon restarts
@@ -8,10 +8,11 @@ Two plans have been defined:
 
 ## Configuration
 
-* **APPLICATION_NAME**: Name of the Kibana objects deployed. Default `kibana`
-* **KIBANA_MEMORY_LIMIT**: Memory limits to be set to the `kibana` container. The half will be assigned to the Elasticsearch heap. Default `256Mi`
-* **KIBANA_PVC_SIZE**: Size of each Persistent Volume Claim that will be defined. Default `200Mi` (Only for the persistent plan)
-* **SECURE**: Whether to secure or not Kibana using [OpenShift OAuth Proxy](https://github.com/openshift/oauth-proxy) that will allow only authenticated users with access to the Kibana service to access the application.
+* **application_name**: Name of the Kibana objects deployed. Default `kibana`
+* **kibana_memory_limit**: Memory limits to be set to the `kibana` container. The half will be assigned to the Elasticsearch heap. Default `256Mi`
+* **kibana_pvc_size**: Size of each Persistent Volume Claim that will be defined. Default `200Mi` (Only for the persistent plan)
+* **kibana_version**: Dropdown to select the Elasticsearch version to deploy
+* **secure**: Whether to secure or not Kibana using [OpenShift OAuth Proxy](https://github.com/openshift/oauth-proxy) that will allow only authenticated users with access to the Kibana service to access the application.
 
 ## Elasticsearch dependency
 
